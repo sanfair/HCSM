@@ -1,0 +1,9 @@
+itemGroup.hcsm=HarvestCraft Smart Machines
+
+#items
+item.lugboxTrap.name=Lugbox Trap
+item.fishnet.name=Fishnet
+
+#blocks
+tile.animaltrap.name=Animal Trap
+tile.fishtrap.name=Fish Trap

@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "hcsm:animaltrap" },
+    "facing=south": { "model": "hcsm:animaltrap", "y": 180 },
+    "facing=west":  { "model": "hcsm:animaltrap", "y": 270 },
+    "facing=east":  { "model": "hcsm:animaltrap", "y": 90 }
+  }
+}

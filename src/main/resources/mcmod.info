@@ -1,0 +1,16 @@
+[
+{
+  "modid": "hcsm",
+  "name": "HarvestCraft Smart Machines",
+  "description": "Fix machines push/pull actions",
+  "version": "0.0.1",
+  "mcversion": "1.10.2",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Sanfair"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

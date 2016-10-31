@@ -1,0 +1,18 @@
+{
+  "variants": {
+    "normal" : { "model": "hcsm:fishtrap" },
+    "facing=north": { "model": "hcsm:fishtrap" },
+    "facing=south": { "model": "hcsm:fishtrap_water" },
+    "facing=west":  { "model": "hcsm:fishtrap_water_top"},
+    "facing=east":  { "model": "hcsm:fishtrap"},
+    "water=0": { "model": "hcsm:fishtrap" },
+    "water=1": { "model": "hcsm:fishtrap_water" },
+    "water=2": { "model": "hcsm:fishtrap_water_top"},
+    "inventory": [{ 
+        "model": "item/generated", 
+        "textures": { 
+        "layer0": "necromancer:items/alter" 
+        } 
+    }]
+  }
+}
