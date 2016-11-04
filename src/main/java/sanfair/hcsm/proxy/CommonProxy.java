@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import sanfair.hcsm.init.ModBlocks;
 import sanfair.hcsm.init.ModCrafting;
 import sanfair.hcsm.init.ModItems;
+import sanfair.hcsm.init.ModOreDictionary;
 import sanfair.hcsm.init.ModTileEntities;
 
 public class CommonProxy {
@@ -16,6 +17,8 @@ public class CommonProxy {
         ModBlocks.init();
         ModBlocks.register();
         ModTileEntities.register();
+        
+        ModOreDictionary.init();
     }
 
     public void init(FMLInitializationEvent e) {

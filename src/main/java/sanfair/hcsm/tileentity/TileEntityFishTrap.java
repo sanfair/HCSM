@@ -1,18 +1,38 @@
 package sanfair.hcsm.tileentity;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.inventory.SlotFurnaceFuel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.oredict.OreDictionary;
 
-public class TileEntityFishTrap extends TileEntity implements IInventory, ITickable {
-
+public class TileEntityFishTrap extends TileEntity implements ISidedInventory, ITickable {
+    
+    public int produceTime;
+    
+    public TileEntityFishTrap() {
+        super();
+        produceTime = 0;
+    }
+    
     private ItemStack[] inventory = new ItemStack[19];
     /*
      * custom fields
@@ -44,24 +64,13 @@ public class TileEntityFishTrap extends TileEntity implements IInventory, ITicka
                 this.inventory[slot] = ItemStack.loadItemStackFromNBT(stackTag);
             }
         }
-        /*
-         * custom fields values
-         * 
-         * this.runTime = compound.getShort("RunTime");
-         * this.produceTime = compound.getShort("ProduceTime");
-         * this.currentBeeRunTime = getRunTime(this.inventory[1]);
-         */
+        this.produceTime = (int) compound.getShort("produceTime");
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
-        /*
-         * custom fields values
-         * 
-         * compound.setShort("RunTime", (short)this.runTime);
-         * compound.setShort("ProduceTime", (short)this.produceTime);
-         */
+        compound.setShort("produceTime", (short)this.produceTime);
         NBTTagList tagList = new NBTTagList();
         for (int i = 0; i < this.inventory.length; ++i) {
             if (this.inventory[i] != null) {
@@ -77,7 +86,150 @@ public class TileEntityFishTrap extends TileEntity implements IInventory, ITicka
 
     @Override
     public void update() {
+        
+        
+        boolean needsUpdate = false;
+        boolean canRun = canRun();
+        ItemStack bait = this.inventory[0];
+        
+        if (!this.worldObj.isRemote) {
+            if (canRun) {
+                ++this.produceTime;
+                int runTime = getRunTime();
+                runTime = 10;
+                if (runTime > 0 && this.produceTime >= Math.floor(runTime)) {
+                    this.produceTime = 0;
+                    run();
+                    needsUpdate = true;
+                }
+            }
+        }
+        if (needsUpdate) {
+            markDirty();
+            this.worldObj.notifyBlockUpdate(this.pos, this.worldObj.getBlockState(this.pos), this.worldObj.getBlockState(this.pos), 3);
+        }
+    }
+
+    private void run() {
+        ItemStack catchedFish = getFish();
+        if(catchedFish == null) {
+            return;
+        }
+        for(int i = 1; i <= 18; ++i) {
+            if (this.inventory[i] == null) {
+                decrInputStack();
+                this.inventory[i] = catchedFish.copy();
+                break;
+            }
+        }
+        
+    }
+
+    private ItemStack getFish() {
+        Random rnd = new Random();
+        List<ItemStack> fishes = OreDictionary.getOres("itemFishing");
+        if (this.inventory[0] != null) {
+            int rndnum = rnd.nextInt(fishes.size());            
+            return fishes.get(rndnum) == null? null : fishes.get(rndnum).copy();
+        }
+        return null;
+        
+    }
+
+    private void decrInputStack() {
+       ItemStackHelper.getAndSplit(this.inventory, 0, 1);
+        
+    }
+
+    private int getRunTime() {
+        int speed = getSpeed();
+        
+        if (speed == -1) {
+            return -1;
+        }
+        int water = countBlocks("water");
+        int i = 0;
+        for (i = 0; i < water; ++i) {
+            speed = (int)(speed * 0.95D);
+        }
+        return speed;
+    }
+
+    private int getSpeed() {
+        ItemStack bait = inventory[0];
+        
+        if (bait == null) {
+            return -1;
+        }
+        try {
+            Class<?> HarvestCraft = Class.forName("com.pam.harvestcraft.HarvestCraft");
+          
+            
+            if (bait.getItem() == com.pam.harvestcraft.item.ItemRegistry.fishtrapbaitItem) {
+                return 3200;
+            }
+        } catch (ClassNotFoundException e) {
+            System.out.println("Pam's harvest craft not loaded");
+        }
+        
+        return -1;
+    }
+
+    private boolean canRun() {
+        ItemStack bait = inventory[0];
+        if (bait != null && isCorrectBait(bait) && countBlocks("water") > 5) {
+            return true;
+        }
+        return false;
+    }
+
+    private int countBlocks(String name) {
         // TODO Auto-generated method stub
+        byte i = 0;
+        byte count = 0;
+        World world = this.worldObj;
+        BlockPos pos = this.pos;
+        IBlockState block;
+        if(Objects.equals(new String("water"), name)) {
+            for(i = -2; i <= 2; ++i) {
+                if (i == 0) {
+                    continue;
+                }
+                block = world.getBlockState(pos.add(i, 0, 0));
+                if (block.getMaterial() == Material.WATER) {
+                    if (((Integer)block.getValue(BlockLiquid.LEVEL)).intValue() == 0) {
+                            ++count;
+                    }
+                }
+            }
+            for(i = -2; i <= 2; ++i) {
+                if (i == 0) {
+                    continue;
+                }
+                block = world.getBlockState(pos.add(0, 0, i));
+                if (block.getMaterial() == Material.WATER) {
+                    if (((Integer)block.getValue(BlockLiquid.LEVEL)).intValue() == 0) {
+                            ++count;
+                    }
+                }
+            }
+            return count;
+        }
+        if(Objects.equals(new String("trap"), name)) {
+            //??
+        }
+        return 0;
+    }
+
+    private boolean isCorrectBait(ItemStack bait) {
+        // TODO Auto-generated method stub
+        List<ItemStack> baits = OreDictionary.getOres("baitFish", true);
+        for(ItemStack allowedBait : baits) {
+            if(Objects.equals(bait.getUnlocalizedName(), allowedBait.getUnlocalizedName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -87,10 +239,7 @@ public class TileEntityFishTrap extends TileEntity implements IInventory, ITicka
 
     @Override
     public ItemStack getStackInSlot(int index) {
-        if ((index < 0) || (index >= this.inventory.length)) {
-            return null;
-        }
-        return this.inventory[index];
+            return this.inventory[index];
     }
 
     @Override
@@ -134,6 +283,10 @@ public class TileEntityFishTrap extends TileEntity implements IInventory, ITicka
             return false;
         } else {
             //TODO valid baits
+            if (isCorrectBait(stack.copy())) {
+                return true;
+            }
+            
             return false;
         }
     }
@@ -157,6 +310,26 @@ public class TileEntityFishTrap extends TileEntity implements IInventory, ITicka
             this.inventory[i] = null;
         }
         markDirty();
+    }
+
+    @Override
+    public int[] getSlotsForFace(EnumFacing side) {
+        int[] slots  = new int[inventory.length];
+        for (int i = 0; i < inventory.length; i++) {
+            slots[i] = i;
+        }
+        return slots;
+    }
+
+    @Override
+    public boolean canInsertItem(int index, ItemStack itemStackIn, EnumFacing direction) {
+        // TODO Auto-generated method stub
+        return true;
+    }
+
+    @Override
+    public boolean canExtractItem(int index, ItemStack stack, EnumFacing direction) {        
+        return index == 0 ? false : true;
     }
 
 }

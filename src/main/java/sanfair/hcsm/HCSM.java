@@ -18,8 +18,8 @@ import sanfair.hcsm.init.ModItems;
 import sanfair.hcsm.init.ModTileEntities;
 import sanfair.hcsm.lib.Reference;
 import sanfair.hcsm.proxy.CommonProxy;
-
-@Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION, acceptedMinecraftVersions = Reference.MC_VERSIONS)
+//, dependencies = "required-after:harvestcraft"
+@Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION, acceptedMinecraftVersions = Reference.MC_VERSIONS, dependencies = "required-after:harvestcraft")
 public class HCSM {
 
     @Instance(Reference.MOD_ID)
@@ -37,17 +37,20 @@ public class HCSM {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        System.out.println("HCSM Loading");
         proxy.preInit(event);
         NetworkRegistry.INSTANCE.registerGuiHandler(HCSM.instance, new GuiHandler());
     }
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
+        System.out.println("HCSM Loading");
         proxy.init(event);
     }
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
+        System.out.println("HCSM Loading");
         proxy.postInit(event);
     }
 

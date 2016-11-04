@@ -36,7 +36,7 @@ import sanfair.hcsm.tileentity.TileEntityFishTrap;
 public class BlockFishTrap extends BlockSmartTrap {
 
     public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
-    public static final PropertyInteger WATER = PropertyInteger.create("water", 0, 3);
+    public static final PropertyInteger WATER = PropertyInteger.create("water", 0, 2);
 
     public BlockFishTrap() {
         super(Material.WOOD);

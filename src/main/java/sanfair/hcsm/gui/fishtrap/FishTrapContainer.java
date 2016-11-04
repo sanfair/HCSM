@@ -63,7 +63,7 @@ public class FishTrapContainer extends Container {
             if (fromSlot >= 19) {
                 // From Player Inventory to TE Inventory
                 //checking for oreDictionary fishBait
-                if(true) {
+                if(fishtrap.isItemValidForSlot(0, current)) {
                     if (!this.mergeItemStack(current, 0, 1, true)) {
                         return null;
                     }
