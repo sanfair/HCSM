@@ -129,12 +129,10 @@ public class BlockFishTrap extends BlockSmartTrap {
         return 0;
     }
 
-    //super method ??
     public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
         return getDefaultState().withProperty(WATER, getWaterProperty(worldIn,pos));
     }
 
-    //super method ??
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
         worldIn.setBlockState(pos, state.withProperty(WATER, getWaterProperty(worldIn,pos)), 2);
     }
@@ -170,19 +168,16 @@ public class BlockFishTrap extends BlockSmartTrap {
         }
     }
 
-    //super method ??
     @Override
     public IBlockState getStateFromMeta(int meta) {
         return getDefaultState().withProperty(WATER, meta);
     }
 
-    //super method ??
     @Override
     public int getMetaFromState(IBlockState state) {
         return state.getValue(WATER);
     }
 
-    //super method ??
     @Override
     protected BlockStateContainer createBlockState() {
         return new BlockStateContainer(this, new IProperty[] {WATER});
